@@ -1,6 +1,7 @@
 package com.consistenthashing;
 
 import com.google.common.hash.Hashing;
+import org.checkerframework.checker.units.qual.A;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -87,5 +88,26 @@ public class ConsistentHashRing {
         }
         double percentage = (100.0 * moved) / total;
         System.out.println("\nTotal moved: " + moved + " / " + total + " (" + percentage + "%)");
+    }
+
+    public List<String> getReplicaNodes(String key, int rf) {
+        List<String> replicaNodes = new ArrayList<>();
+        long position = hash(key);
+        int visited = 0;
+        int totalVnodes = ring.size();
+
+        while (replicaNodes.size() < rf && visited < totalVnodes) {
+            Long nodePosition = ring.ceilingKey(position);
+            if (nodePosition == null) {
+                nodePosition = ring.firstKey();
+            }
+            String node = extractPhysicalNode(ring.get(nodePosition));
+            if (!replicaNodes.contains(node)) {
+                replicaNodes.add(node);
+            }
+            position = nodePosition + 1;
+            visited++;
+        }
+        return replicaNodes;
     }
 }
