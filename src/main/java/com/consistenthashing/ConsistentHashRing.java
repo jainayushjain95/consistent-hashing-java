@@ -63,4 +63,29 @@ public class ConsistentHashRing {
             System.out.println(entry.getKey() + " : " + percentage);
         }
     }
+
+    public Map<String, String> getRoutingSnapshot(String[] keys) {
+        Map<String, String> map = new HashMap<>();
+        for(String key : keys) {
+            String node = getNode(key);
+            map.put(key, node);
+        }
+        return map;
+    }
+
+    public void printMigrationImpact(Map<String, String> before,
+                                     Map<String, String> after) {
+        int moved = 0;
+        int total = before.size();
+
+        for(Map.Entry<String, String> entry : before.entrySet()) {
+            String key = entry.getKey();
+            if(!after.get(key).equals(before.get(key))) {
+                System.out.println("MOVED: " + key + " → was on "+before.get(key)+", now on " + after.get(key));
+                moved++;
+            }
+        }
+        double percentage = (100.0 * moved) / total;
+        System.out.println("\nTotal moved: " + moved + " / " + total + " (" + percentage + "%)");
+    }
 }

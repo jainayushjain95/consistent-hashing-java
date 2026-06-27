@@ -1,26 +1,36 @@
 package com.consistenthashing;
 
+import java.util.*;
+
 public class Main {
     public static void main(String[] args) {
-        ConsistentHashRing ring = new ConsistentHashRing();
         String[] merchants = new String[1000];
         for (int i = 0; i < 1000; i++) {
             merchants[i] = "merchant-" + i;
         }
 
-        System.out.println("=== 1 vnode per node ===");
-        ConsistentHashRing ring1 = new ConsistentHashRing();
-        ring1.addNode("Node-1", 1);
-        ring1.addNode("Node-2", 1);
-        ring1.addNode("Node-3", 1);
-        ring1.printDistribution(merchants);
+        ConsistentHashRing ring = new ConsistentHashRing();
+        ring.addNode("Node-1", 150);
+        ring.addNode("Node-2", 150);
+        ring.addNode("Node-3", 150);
 
-        System.out.println("\n=== 150 vnodes per node ===");
-        ConsistentHashRing ring150 = new ConsistentHashRing();
-        ring150.addNode("Node-1", 150);
-        ring150.addNode("Node-2", 150);
-        ring150.addNode("Node-3", 150);
-        ring150.printDistribution(merchants);
+        System.out.println("=== Before Node-4 joins ===");
+        ring.printDistribution(merchants);
+
+// Take snapshot before
+        Map<String, String> before = ring.getRoutingSnapshot(merchants);
+
+// Node-4 joins
+        ring.addNode("Node-4", 150);
+
+        System.out.println("\n=== After Node-4 joins ===");
+        ring.printDistribution(merchants);
+
+// Take snapshot after
+        Map<String, String> after = ring.getRoutingSnapshot(merchants);
+
+        System.out.println("\n=== Migration impact ===");
+        ring.printMigrationImpact(before, after);
 
     }
 }
