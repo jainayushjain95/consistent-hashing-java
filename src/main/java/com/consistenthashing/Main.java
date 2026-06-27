@@ -10,14 +10,20 @@ public class Main {
         ring.addNode("Node-3", 150);
         ring.addNode("Node-4", 150);
 
-        String[] keys = {"swiggy", "zomato", "flipkart", "amazon", "meesho"};
-        int rf = 3;
+        List<String> nodeNames = new ArrayList<>();
+        nodeNames.add("Node-1");
+        nodeNames.add("Node-2");
+        nodeNames.add("Node-3");
+        nodeNames.add("Node-4");
 
-        System.out.println("=== Replica placement (RF=" + rf + ") ===");
-        for (String key : keys) {
-            List<String> replicas = ring.getReplicaNodes(key, rf);
-            System.out.println(key + " → " + replicas);
-        }
+// N=3, W=2, R=2 → W+R > N
+        ReplicatedStore store = new ReplicatedStore(ring, nodeNames, 3, 2, 2);
 
+        System.out.println("=== Writing payment for swiggy ===");
+        store.write("swiggy", "payment_500");
+
+        System.out.println("\n=== Reading payment for swiggy ===");
+        String result = store.read("swiggy");
+        System.out.println("Result: " + result);
     }
 }
